@@ -109,10 +109,9 @@ bingRouter.get("/bing/image", async (ctx) => {
       ctx.response.set("Content-Type", "image/jpeg");
       ctx.body = imageData;
     } else {
+      const bingUrl = `https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&uhd=${hd}&uhdwidth=${width}&uhdheight=${height}&mkt=zh-CN`;
       // 没有本地图片，从服务器拉取数据
-      const response = await axios.get(
-        `https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&uhd=${hd}&uhdwidth=${width}&uhdheight=${height}&mkt=zh-CN`
-      );
+      const response = await axios.get(bingUrl);
       const imgUrl = `https://cn.bing.com/${response.data.images[0].url}`;
 
       // 下载图片并将其保存到本地
@@ -120,7 +119,10 @@ bingRouter.get("/bing/image", async (ctx) => {
         responseType: "arraybuffer",
       });
       const imageData = Buffer.from(imageResponse.data, "binary");
-      fs.writeFileSync(localImagePath, imageData);
+      try {
+        //  部署 vercel 没权限写入文件
+        fs.writeFileSync(localImagePath, imageData);
+      } catch (e) {}
 
       // 将图片数据返回给客户端
       ctx.response.set("Content-Type", "image/jpeg");

@@ -1,6 +1,6 @@
 <div align="center">
 <img alt="logo" height="120" src="./public/favicon.png" width="120"/>
-<h2>Tools API</h2>
+<h2>API Tools</h2>
 <p>一些实用的 API</p>
 </div>
 
