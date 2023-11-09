@@ -1,7 +1,7 @@
 <div align="center">
 <img alt="logo" height="120" src="./public/favicon.png" width="120"/>
 <h2>Tools API</h2>
-<p>一些有用的 API</p>
+<p>一些实用的 API</p>
 </div>
 
 ## 总览
@@ -27,7 +27,7 @@ pnpm start
 
 ## 使用
 
-### 站点状态
+### 1、站点状态
 
 反代 `UptimeRobot` 以实现站点监控
 
@@ -35,7 +35,7 @@ pnpm start
 POST https://example.com/status
 ```
 
-### 每日必应
+### 2、每日必应
 
 - 详细信息
 
