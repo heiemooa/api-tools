@@ -12,8 +12,9 @@
 
 | **功能** | **调用名称** | **状态** |
 | -------- | ------------ | -------- |
-| 站点状态 | status       | 🟢       |
+| 随机图片 | img          | 🟢       |
 | 每日必应 | bing         | 🟢       |
+| 站点状态 | status       | 🟢       |
 
 ## 部署
 
@@ -27,13 +28,48 @@ pnpm start
 
 ## 使用
 
-### 1、站点状态
+### 1、随机图片 API
 
-反代 `UptimeRobot` 以实现站点监控
+- 随机跳转一张图片
 
-```http
-POST https://example.com/status
-```
+  ```http
+  GET https://example.com/img
+  ```
+
+- 跳转到指定 ID 的图片
+
+  ```http
+  GET https://example.com/img?id=1
+  ```
+
+- 获取包含随机 ID 的图片信息，以 json 格式返回
+
+  ```http
+  GET https://example.com/img?json
+  ```
+
+- 获取包含指定 ID 的图片信息，以 json 格式返回
+
+  ```http
+  GET https://example.com/img?id=1&json
+  ```
+
+- 服务端随机加载一张图片并输出
+  ```http
+  GET https://example.com/img?raw
+  ```
+- 服务端加载指定 ID 的图片并输出
+
+  ```http
+  GET https://example.com/img?id=1&raw
+  ```
+
+- 支持参数
+  | **参数** | **默认** | **必填** | **说明** |
+  |--------|--------|--------|----------------------|
+  | id | 无 | 否 | 图片 ID |
+  | json | 无 | 否 | 以 json 格式返回 |
+  | raw | 无 | 否 | 服务端渲染 |
 
 ### 2、每日必应
 
@@ -56,6 +92,14 @@ POST https://example.com/status
   | height | 无 | 否 | 图片高度 |
   | size | 1 | 否 | 获取的图片数量，最大为 8 |
   | days | 0 | 否 | 获取的图片在历史记录中的索引，最大为 7 |
+
+### 3、站点状态
+
+反代 `UptimeRobot` 以实现站点监控
+
+```http
+POST https://example.com/status
+```
 
 ### 持续添加中
 
