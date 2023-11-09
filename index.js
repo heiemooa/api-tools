@@ -50,7 +50,7 @@ app.use(router.allowedMethods());
 // 启动应用程序并监听端口
 const startApp = (port) => {
   app.listen(port, () => {
-    console.log(`成功在 ${port} 端口上运行`);
+    console.log(`运行: http://localhost:${port}`);
   });
 };
 

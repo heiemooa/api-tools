@@ -3,11 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Tools API</title>
-    <link
-      rel="shortcut icon"
-      href="./favicon.svg"
-      type="image/x-icon"
-    />
+    <link rel="shortcut icon" href="./favicon.svg" type="image/x-icon" />
     <link
       rel="stylesheet"
       href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/6.0.0/css/all.min.css"
@@ -124,29 +120,27 @@
   <body>
     <main>
       <div class="ico"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-      <div class="title">Tools API</div>
+      <div class="title">API Tools</div>
       <div class="text">服务已正常运行</div>
     </main>
     <footer>
       <div class="social">
-        <i class="fa-brands fa-github" onclick="socialJump('github')"></i>
-        <div class="point"></div>
         <i class="fa-solid fa-house" onclick="socialJump('home')"></i>
+        <div class="point"></div>
+        <i class="fa-solid fa-blog" onclick="socialJump('blog')"></i>
+        <div class="point"></div>
+        <i class="fa-brands fa-github" onclick="socialJump('github')"></i>
         <div class="point"></div>
         <i class="fa-solid fa-envelope" onclick="socialJump('email')"></i>
       </div>
       <div class="power">
-        Copyright © 2020
+        Copyright © 2023
         <script>
           document.write(" - " + new Date().getFullYear());
         </script>
-        <a href="https://imsyy.top/" target="_blank">無名</a>
+        <a href="https://emooa.com" target="_blank">Emooa</a>
       </div>
-      <div class="icp">
-        <a href="https://beian.miit.gov.cn/" target="_blank"
-          >豫ICP备2022018134号-1</a
-        >
-      </div>
+      <div class="icp"></div>
     </footer>
     <script>
       // 跟随系统主题
@@ -172,13 +166,16 @@
       const socialJump = (type) => {
         switch (type) {
           case "github":
-            window.location.href = "https://github.com/imsyy/";
+            window.location.href = "https://github.com/heiemooa";
             break;
           case "home":
-            window.location.href = "https://www.imsyy.top/";
+            window.location.href = "https://emooa.com";
+            break;
+          case "blog":
+            window.location.href = "https://blog.emooa.com";
             break;
           case "email":
-            window.location.href = "mailto:one@imsyy.top";
+            window.location.href = "mailto:heiemooa@gmail.com";
             break;
           default:
             break;
