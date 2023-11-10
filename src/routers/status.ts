@@ -2,15 +2,22 @@
  * 反代 Uptimerobot API
  */
 
-const Router = require("koa-router");
-const statusRouter = new Router();
-const axios = require("axios");
+import { IImageBody } from "../interface";
+import { Context } from "koa";
+import axios from "axios";
+import Router from "@koa/router";
+
+const router = new Router();
 
 // 调用路径
 const url = "https://api.uptimerobot.com/v2/getMonitors";
 
+type Icontext = Context & {
+  body: IImageBody;
+};
+
 // GET
-statusRouter.get("/status", async (ctx) => {
+router.get("/status", async (ctx: Icontext) => {
   ctx.status = 400;
   ctx.body = {
     code: 400,
@@ -19,14 +26,18 @@ statusRouter.get("/status", async (ctx) => {
 });
 
 // POST
-statusRouter.post("/status", async (ctx) => {
+router.post("/status", async (ctx: Icontext) => {
   try {
     // 在这里调用 Uptimerobot API
-    const response = await axios.post(url, ctx.request.body, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
     // 将 Uptimerobot API 的响应返回给客户端
     ctx.body = response.data;
   } catch (error) {
@@ -39,4 +50,4 @@ statusRouter.post("/status", async (ctx) => {
   }
 });
 
-module.exports = statusRouter;
+export default router;

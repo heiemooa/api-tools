@@ -5,23 +5,35 @@
  * @param {string} raw - 服务端加载并返回
  */
 
-const Router = require("koa-router");
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
-const imageRouter = new Router();
+import { Context } from "koa";
+import { ParsedUrlQuery } from "querystring";
+import Router from "@koa/router";
+import * as path from "path";
+import * as fs from "fs";
+// import axios from "axios";
+
+const router = new Router();
 
 const ALLOW_RAW_OUTPUT = process.env.ALLOW_RAW_OUTPUT || false;
 
+type IQuery = {
+  id?: number;
+  type?: "json" | "raw";
+} & ParsedUrlQuery;
+
+type Icontext = Context & {
+  query: IQuery;
+};
+
 // 获取列表数据
-imageRouter.get("/img", async (ctx) => {
+router.get("/img", async (ctx: Icontext) => {
   try {
-    let imageDir = path.join(__dirname, "../public/images");
+    let imageDir = path.join(__dirname, "../images");
     let imgsArray = fs.readdirSync(imageDir);
 
     // 拿到参数ID
-    let { id } = ctx.query;
-    id = parseInt(id);
+    let { id, type } = ctx.query;
+    id = parseInt(String(id));
     if (id && id > 0 && id <= imgsArray.length) {
       ctx.response.set("Cache-Control", "public, max-age=86400");
     } else {
@@ -30,7 +42,7 @@ imageRouter.get("/img", async (ctx) => {
     }
 
     // json 格式
-    if ("json" in ctx.query) {
+    if (type === "json") {
       ctx.response.set("Content-Type", "application/json");
       ctx.body = {
         code: 200,
@@ -42,7 +54,7 @@ imageRouter.get("/img", async (ctx) => {
     const imageUrl = path.join(imageDir, imgsArray[id - 1]);
 
     // 服务端读取图片后回传
-    if ("raw" in ctx.query) {
+    if (type === "raw") {
       if (!ALLOW_RAW_OUTPUT) {
         ctx.throw(403);
         return;
@@ -62,7 +74,7 @@ imageRouter.get("/img", async (ctx) => {
 
     ctx.set("Referrer-Policy", "no-referrer");
     ctx.redirect(`/images/${imgsArray[id - 1]}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     ctx.status = 500;
     ctx.body = {
@@ -72,4 +84,4 @@ imageRouter.get("/img", async (ctx) => {
   }
 });
 
-module.exports = imageRouter;
+export default router;

@@ -9,18 +9,35 @@
  * @param {number} uhdheight - 如果启用了超高分辨率图片，可以使用这个参数来指定图片的高度
  */
 
-const { get, set } = require("../utils/cacheData");
-const Router = require("koa-router");
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
-const bingRouter = new Router();
+import { IBingData, IImage, IImageBody } from "../interface";
+import { Context } from "koa";
+import { ParsedUrlQuery } from "querystring";
+import * as path from "path";
+import * as fs from "fs";
+import axios from "axios";
+import isEmpty from "lodash.isempty";
+import Router from "@koa/router";
+import { get, set } from "../utils/cache";
+
+const router = new Router();
 
 // 调用时间
-let updateTime = new Date().toISOString();
+let updateTime: string = new Date().toISOString();
+
+type IQuery = {
+  days: number;
+  size: number;
+  width: number;
+  height: number;
+} & ParsedUrlQuery;
+
+type Icontext = Context & {
+  body: IImageBody | Buffer;
+  query: IQuery;
+};
 
 // 获取列表数据
-bingRouter.get("/bing", async (ctx) => {
+router.get("/bing", async (ctx: Icontext) => {
   try {
     // 获取参数
     let hd = 0;
@@ -40,17 +57,17 @@ bingRouter.get("/bing", async (ctx) => {
     const cacheKey = JSON.stringify(params);
 
     // 从缓存中获取数据
-    let data = await get(cacheKey);
+    let data: IImage[] = await get(cacheKey);
     const from = data ? "cache" : "server";
 
     if (!data) {
       // 从服务器拉取数据
-      const response = await axios.get(
+      const response: { data: IBingData } = await axios.get(
         `https://cn.bing.com/HPImageArchive.aspx?format=js&idx=${days}&n=${size}&uhd=${hd}&uhdwidth=${width}&uhdheight=${height}&mkt=zh-CN`
       );
       data = getData(response.data?.images);
       updateTime = new Date().toISOString();
-      if (!data || !data[0]) {
+      if (isEmpty(data)) {
         ctx.status = 500;
         ctx.body = {
           code: 500,
@@ -63,6 +80,7 @@ bingRouter.get("/bing", async (ctx) => {
     }
     ctx.body = {
       code: 200,
+      message: "OK",
       from,
       updateTime,
       images: data,
@@ -78,7 +96,7 @@ bingRouter.get("/bing", async (ctx) => {
 });
 
 // 显示图片
-bingRouter.get("/bing/image", async (ctx) => {
+router.get("/bing/image", async (ctx: Icontext) => {
   try {
     // 获取参数
     let hd = 0;
@@ -139,13 +157,13 @@ bingRouter.get("/bing/image", async (ctx) => {
 });
 
 // 本地图片缓存目录
-const cacheDir = path.join(__dirname, "../public/images");
+const cacheDir = path.join(__dirname, "../images");
 if (!fs.existsSync(cacheDir)) {
   fs.mkdirSync(cacheDir);
 }
 
 // 数据处理
-const getData = (data) => {
+const getData = (data: IImage[]): any[] => {
   if (!data) return [];
   return data.map((v) => {
     return {
@@ -157,7 +175,6 @@ const getData = (data) => {
       copyright: separateDesc(v.copyright)?.copyright,
       urlbase: v.urlbase,
       url: `https://cn.bing.com/${v.url}`,
-      uhdUrl: v.uhdUrl,
       searchLink: v.copyrightlink,
       aboutLink: `https://cn.bing.com/${v.quiz}`,
     };
@@ -169,7 +186,7 @@ const getData = (data) => {
  * @param {string} value - 包含描述和版权信息的字符串
  * @returns {Object} 包含分离后的描述和版权信息的对象
  */
-const separateDesc = (value) => {
+const separateDesc = (value: string) => {
   try {
     // 使用正则表达式匹配并提取版权信息
     const copyrightRegex = /\(© ([^\)]+)\)/;
@@ -193,4 +210,4 @@ const separateDesc = (value) => {
   }
 };
 
-module.exports = bingRouter;
+export default router;

@@ -1,4 +1,5 @@
-const NodeCache = require("node-cache");
+import { IImage } from "../interface";
+import NodeCache from "node-cache";
 
 const cache = new NodeCache({
   stdTTL: 1800, // 缓存默认过期时间（单位秒）
@@ -10,8 +11,8 @@ const cache = new NodeCache({
  * @param {string} key 缓存键值
  * @return {Promise<any>} 数据
  */
-const get = async (key) => {
-  return cache.get(key);
+export const get = async (key: string): Promise<any> => {
+  return await cache.get(key);
 };
 
 /**
@@ -21,8 +22,12 @@ const get = async (key) => {
  * @param {number} ttl 有效期，单位秒，默认为300秒
  * @return {Promise<void>} 无返回值
  */
-const set = async (key, value, ttl = 300) => {
-  return cache.set(key, value, ttl);
+export const set = async (
+  key: string,
+  value: IImage[],
+  ttl = 300
+): Promise<any> => {
+  return await cache.set(key, value, ttl);
 };
 
 /**
@@ -30,12 +35,6 @@ const set = async (key, value, ttl = 300) => {
  * @param {string} key 缓存键值
  * @return {Promise<void>} 无返回值
  */
-const del = async (key) => {
-  return cache.del(key);
-};
-
-module.exports = {
-  get,
-  set,
-  del,
+export const del = async (key: string) => {
+  return await cache.del(key);
 };

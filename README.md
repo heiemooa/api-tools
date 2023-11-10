@@ -1,7 +1,7 @@
 <div align="center">
 <img alt="logo" height="120" src="./public/favicon.png" width="120"/>
 <h2>API Tools</h2>
-<p>一些实用的 API</p>
+<p>基于 Typescript、Koa 实现的一些实用的 API 工具, 如随机图片、每日必应、本地IP等 | Some practical API Tools, such as random pictures, daily Bing, local IP, etc.</p>
 </div>
 
 ## 总览
@@ -16,14 +16,20 @@
 | 每日必应 | bing         | 🟢       |
 | 站点状态 | status       | 🟢       |
 
-## 部署
+## 启动
 
 ```js
 // 安装依赖
-pnpm install
+yarn
 
-// 运行
-pnpm start
+// 构建
+yarn build
+
+// 本地开发
+yarn dev
+
+// 云端部署
+yarn start
 ```
 
 ## 使用
@@ -45,31 +51,30 @@ pnpm start
 - 获取包含随机 ID 的图片信息，以 json 格式返回
 
   ```http
-  GET https://example.com/img?json
+  GET https://example.com/img?type=json
   ```
 
 - 获取包含指定 ID 的图片信息，以 json 格式返回
 
   ```http
-  GET https://example.com/img?id=1&json
+  GET https://example.com/img?id=1&type=json
   ```
 
 - 服务端随机加载一张图片并输出
   ```http
-  GET https://example.com/img?raw
+  GET https://example.com/img?type=raw
   ```
 - 服务端加载指定 ID 的图片并输出
 
   ```http
-  GET https://example.com/img?id=1&raw
+  GET https://example.com/img?id=1&type=raw
   ```
 
 - 支持参数
   | **参数** | **默认** | **必填** | **说明** |
   |--------|--------|--------|----------------------|
   | id | 无 | 否 | 图片 ID |
-  | json | 无 | 否 | 以 json 格式返回 |
-  | raw | 无 | 否 | 服务端渲染 |
+  | type | 无 | 否 | 'json'或'raw'，以 json 格式返回或服务端渲染 |
 
 ### 2、每日必应
 
@@ -128,4 +133,4 @@ POST https://example.com/status
 
 ## 鸣谢
 
-- [ToolsApi](https://github.com/imsyy/ToolsApi) 基于此项目进行修改
+- [ToolsApi](https://github.com/imsyy/ToolsApi) 基于此项目进行修改，并 Typescript 语言化

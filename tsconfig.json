@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "outDir": "./build",
+    "module": "commonjs", //指定模块代码生成
+    "moduleResolution": "node",
+    "experimentalDecorators": true, //为拟议的ES装饰器提供实验支持。
+    "emitDecoratorMetadata": true, //在源中为装饰声明发出设计类型元数据。
+    "target": "esnext", //指定要使用的默认库
+    "removeComments": true, //不向输出发出注释。
+    "sourceMap": true, //生成相应的'.map'文件。
+    "baseUrl": "src", //用于解析非相对模块名称的基目录。
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "rootDir": "src",
+    "noUnusedLocals": true,
+    "paths": {
+      //指定相对于baseUrl选项计算的路径映射。
+      "@": ["src"]
+    }
+  },
+  "include": ["src/**/*"]
+}
