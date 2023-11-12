@@ -29,15 +29,11 @@ router.get("/status", async (ctx: Icontext) => {
 router.post("/status", async (ctx: Icontext) => {
   try {
     // 在这里调用 Uptimerobot API
-    const response = await axios.post(
-      url,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
+    const response = await axios.post(url, ctx.request.body, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
     // 将 Uptimerobot API 的响应返回给客户端
     ctx.body = response.data;
   } catch (error) {
