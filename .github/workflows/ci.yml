@@ -1,0 +1,64 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env: # 在这里定义环境变量
+      USER_NAME: ${{ secrets.USER_NAME }}
+      IP: ${{ secrets.IP }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      PROJECT: "api-tools"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build
+        run: yarn build
+
+      - name: Deploy
+        run: |
+          if [[ -z "$SSH_PRIVATE_KEY" ]]; then
+            echo "SSH_PRIVATE_KEY is empty or not set."
+            # 在此处采取适当的措施
+          else
+            echo "SSH_PRIVATE_KEY is exist, begin deploy"
+            # 继续执行其他命令
+
+            mkdir -p ~/.ssh
+            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+
+            # # 查看已加密的私钥文件的内容
+            # ssh-keygen -y -f ~/.ssh/id_rsa
+
+            # # DEBUG, 如果ssh失败会输出详细信息
+            # ssh -v -i ~/.ssh/id_rsa $USER_NAME@$IP
+
+            echo "Removing /var/www/$USER_NAME/$PROJECT"
+            ssh $USER_NAME@$IP "rm -rf /var/www/$USER_NAME/$PROJECT || echo 'no such directory.'"
+
+            echo "Creating /var/www/$USER_NAME/$PROJECT"
+            ssh $USER_NAME@$IP "mkdir -p /var/www/$USER_NAME/$PROJECT"
+
+            echo "Copying 'build' directory to /var/www/$USER_NAME/$PROJECT"
+            scp -r build/* $USER_NAME@$IP:/var/www/$USER_NAME/$PROJECT/
+
+            echo "Deployment completed."
+          fi
