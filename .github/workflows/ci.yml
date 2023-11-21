@@ -14,7 +14,8 @@ jobs:
       IP: ${{ secrets.IP }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-      PROJECT: "api-tools"
+      PROJECT: api-tools
+      REPO: git@github.com:heiemooa/api-tools.git
 
     steps:
       - name: Checkout code
@@ -25,13 +26,7 @@ jobs:
         with:
           node-version: 16
 
-      - name: Install dependencies
-        run: yarn
-
-      - name: Build
-        run: yarn build
-
-      - name: Deploy
+      - name: Set up SSH
         run: |
           if [[ -z "$SSH_PRIVATE_KEY" ]]; then
             echo "SSH_PRIVATE_KEY is empty or not set."
@@ -50,15 +45,27 @@ jobs:
 
             # # DEBUG, 如果ssh失败会输出详细信息
             # ssh -v -i ~/.ssh/id_rsa $USER_NAME@$IP
-
-            echo "Removing /var/www/$USER_NAME/$PROJECT"
-            ssh $USER_NAME@$IP "rm -rf /var/www/$USER_NAME/$PROJECT || echo 'no such directory.'"
-
-            echo "Creating /var/www/$USER_NAME/$PROJECT"
-            ssh $USER_NAME@$IP "mkdir -p /var/www/$USER_NAME/$PROJECT"
-
-            echo "Copying 'build' directory to /var/www/$USER_NAME/$PROJECT"
-            scp -r build/* $USER_NAME@$IP:/var/www/$USER_NAME/$PROJECT/
-
-            echo "Deployment completed."
           fi
+
+      - name: Check pm2 process
+        if: steps.check-process.outputs.process-exists == '0'
+        run: ssh $USER_NAME@$IP "source ~/.profile && pm2 stop api-tools || true"
+
+      - name: Update Files
+        run: |
+          echo "Removing /var/www/$USER_NAME/$PROJECT"
+          ssh $USER_NAME@$IP "rm -rf /var/www/$USER_NAME/$PROJECT || echo 'no such directory.'"
+
+          echo "Clone $REPO to /var/www/$USER_NAME/$PROJECT"
+          ssh $USER_NAME@$IP "cd /var/www/$USER_NAME && git clone --depth 1 $REPO"
+
+      - name: Install dependencies
+        run: ssh $USER_NAME@$IP "source ~/.profile && node -v && cd /var/www/$USER_NAME/$PROJECT && yarn"
+
+      - name: Build
+        run: ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && yarn build"
+
+      - name: Start
+        run: |
+          ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && yarn start"
+          echo "Deployment completed."

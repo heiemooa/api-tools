@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rimraf -rf build/ && tsc && cp -r public/. build/ && cp -r src/images build/images",
     "dev": "NODE_ENV=development tsc --watch & nodemon build/index.js",
-    "start": "NODE_ENV=production pm2 start build/index.js",
+    "start": "NODE_ENV=production pm2 start build/index.js --instances 1 --name api-tools",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vercel:login": "vercel login",
     "vercel:dev": "vercel dev",
