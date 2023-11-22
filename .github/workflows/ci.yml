@@ -16,6 +16,7 @@ jobs:
       SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
       PROJECT: api-tools
       REPO: git@github.com:heiemooa/api-tools.git
+      ALLOW_SCHEDULE: true
 
     steps:
       - name: Checkout code
@@ -49,7 +50,7 @@ jobs:
 
       - name: Check pm2 process
         if: steps.check-process.outputs.process-exists == '0'
-        run: ssh $USER_NAME@$IP "source ~/.profile && pm2 stop api-tools || true"
+        run: ssh $USER_NAME@$IP "source ~/.profile && pm2 stop api-tools && pm2 delete api-tools || true"
 
       - name: Update Files
         run: |
@@ -65,7 +66,8 @@ jobs:
       - name: Build
         run: ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && yarn build"
 
+      # 启动定时任务
       - name: Start
         run: |
-          ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && yarn start"
+          ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && ALLOW_SCHEDULE=$ALLOW_SCHEDULE NODE_ENV=production pm2 start build/index.js --instances 1 --name api-tools"
           echo "Deployment completed."
