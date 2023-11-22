@@ -6,8 +6,10 @@ import cors from "koa2-cors";
 import bodyParser from "koa-bodyparser";
 import * as fs from "fs";
 import logger from "koa-logger";
+import dotenv from "dotenv";
+import "./schedule";
 
-require("dotenv").config();
+dotenv.config();
 
 // 配置信息
 const domain = process.env.ALLOWED_DOMAIN || "*";
@@ -53,5 +55,4 @@ app.use((ctx) => {
   ctx.type = "html";
   ctx.body = fs.readFileSync(__dirname + "/404.html", "utf-8");
 });
-
 export default app;
