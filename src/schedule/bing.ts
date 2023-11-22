@@ -59,7 +59,7 @@ const start = (time = "0 20 * * *") => {
       if (!isEmpty(status.not_added)) {
         console.info("监测到更新，开始推送远程..");
         await git.add(".");
-        await git.commit(`update: ${status.not_added}`);
+        await git.commit(`update: bing schedule add ${status.not_added}`);
         await git.push();
         fs.removeSync(folder);
         console.info("同步完成，新增：", status.not_added);
