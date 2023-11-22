@@ -10,11 +10,12 @@ import { ParsedUrlQuery } from "querystring";
 import Router from "@koa/router";
 import * as path from "path";
 import * as fs from "fs";
+import axios from "axios";
 // import axios from "axios";
 
 const router = new Router();
 
-const ALLOW_RAW_OUTPUT = process.env.ALLOW_RAW_OUTPUT || false;
+const ALLOW_RAW_OUTPUT = process.env.ALLOW_RAW_OUTPUT || true;
 
 type IQuery = {
   id?: number;
@@ -41,39 +42,47 @@ router.get("/img", async (ctx: Icontext) => {
       id = Math.ceil(Math.random() * imgsArray.length);
     }
 
+    const imagePath = `/images/${imgsArray[id - 1]}`;
+
     // json 格式
     if (type === "json") {
+      console.info(`JSON: ${imagePath}`);
       ctx.response.set("Content-Type", "application/json");
       ctx.body = {
         code: 200,
         id,
-        url: imgsArray[id - 1],
+        url: ctx.origin + imagePath,
       };
       return;
     }
-    const imageUrl = path.join(imageDir, imgsArray[id - 1]);
 
     // 服务端读取图片后回传
     if (type === "raw") {
+      console.info(`RAW: ${imagePath}`);
       if (!ALLOW_RAW_OUTPUT) {
         ctx.throw(403);
         return;
       }
       ctx.response.set("Content-Type", "image/jpeg");
-      ctx.body = fs.createReadStream(imageUrl);
 
-      //   const imageResponse = await axios.get(
-      //     "https://z3.ax1x.com/2021/08/19/fqDQns.png",
-      //     {
-      //       responseType: "arraybuffer",
-      //     }
-      //   );
-      //   ctx.body = Buffer.from(imageResponse.data, "binary");
+      try {
+        // 读取远程图片文件
+        const imageResponse = await axios.get(ctx.origin + imagePath, {
+          responseType: "arraybuffer",
+        });
+        ctx.body = Buffer.from(imageResponse.data, "binary");
+      } catch (e) {
+        console.warn(`raw error: `, e);
+        console.warn(`raw local: ${path.join(__dirname, "../", imagePath)}`);
+        // 读取本地图片文件
+        ctx.body = fs.createReadStream(path.join(__dirname, "../", imagePath));
+      }
       return;
     }
 
+    console.info(`返回随机图片: ${imagePath}`);
     ctx.set("Referrer-Policy", "no-referrer");
-    ctx.redirect(`/images/${imgsArray[id - 1]}`);
+    ctx.redirect(imagePath);
   } catch (error: any) {
     console.error(error);
     ctx.status = 500;

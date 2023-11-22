@@ -115,22 +115,24 @@ router.get("/bing/image", async (ctx: Icontext) => {
     );
     if (fs.existsSync(expiredImagePath)) {
       fs.unlinkSync(expiredImagePath);
-      console.log(`成功删除过期图片: ${expiredImagePath}`);
+      console.info(`成功删除过期图片: ${expiredImagePath}`);
     }
 
     // 检查本地是否有今天的图片
     const localImagePath = path.join(cacheDir, `${currentDate}.jpg`);
     if (fs.existsSync(localImagePath)) {
-      console.log("触发本地缓存");
+      console.info(`触发本地缓存: ${localImagePath}`);
       // 如果有本地图片，读取并返回给客户端
       const imageData = fs.readFileSync(localImagePath);
       ctx.response.set("Content-Type", "image/jpeg");
       ctx.body = imageData;
     } else {
       const bingUrl = `https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&uhd=${hd}&uhdwidth=${width}&uhdheight=${height}&mkt=zh-CN`;
+      console.info(`拉取必应新图: ${bingUrl}`);
       // 没有本地图片，从服务器拉取数据
       const response = await axios.get(bingUrl);
       const imgUrl = `https://cn.bing.com/${response.data.images[0].url}`;
+      console.info(`必应图片地址: ${imgUrl}`);
 
       // 下载图片并将其保存到本地
       const imageResponse = await axios.get(imgUrl, {

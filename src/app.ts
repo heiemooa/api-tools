@@ -5,6 +5,7 @@ import views from "koa-views";
 import cors from "koa2-cors";
 import bodyParser from "koa-bodyparser";
 import * as fs from "fs";
+import logger from "koa-logger";
 
 require("dotenv").config();
 
@@ -15,6 +16,7 @@ const dev = process.env.NODE_ENV !== "production";
 
 const app = new Koa({ proxy: !dev });
 
+app.use(logger());
 app.use(server(__dirname));
 app.use(views(__dirname));
 

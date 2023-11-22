@@ -1,7 +1,9 @@
 import app from "./app";
 import net from "net";
 
-const port = Number(process.env.PORT) || 5555;
+process.env.PORT = process.env.PORT || "5555";
+
+const port = Number(process.env.PORT);
 
 // 启动应用程序并监听端口
 const startApp = (port: number) => {

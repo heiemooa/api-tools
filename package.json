@@ -4,7 +4,7 @@
   "description": "一些实用的 API Tools, 如随机图片、每日必应、本地IP等 | Some practical API Tools, such as random pictures, daily Bing, local IP, etc.",
   "scripts": {
     "build": "rimraf -rf build/ && tsc && cp -r public/. build/ && cp -r src/images build/images",
-    "dev": "NODE_ENV=development tsc --watch & nodemon build/index.js",
+    "dev": "tsc --watch & NODE_ENV=development nodemon build/index.js",
     "start": "NODE_ENV=production pm2 start build/index.js --instances 1 --name api-tools",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vercel:login": "vercel login",
@@ -16,10 +16,11 @@
   "license": "ISC",
   "devDependencies": {
     "@types/koa": "^2.13.11",
+    "@types/koa__router": "^12.0.4",
     "@types/koa-bodyparser": "^4.3.12",
+    "@types/koa-logger": "^3.1.5",
     "@types/koa-static": "^4.0.4",
     "@types/koa2-cors": "^2.0.5",
-    "@types/koa__router": "^12.0.4",
     "@types/lodash.isempty": "^4.4.9",
     "nodemon": "^3.0.1",
     "vercel": "^32.5.3"
@@ -31,6 +32,7 @@
     "dotenv": "^16.3.1",
     "koa": "^2.14.2",
     "koa-bodyparser": "^4.4.1",
+    "koa-logger": "^3.2.1",
     "koa-static": "^5.0.0",
     "koa-views": "^8.1.0",
     "koa2-cors": "^2.0.6",
