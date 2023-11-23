@@ -8,10 +8,9 @@
 import { Context } from "koa";
 import { ParsedUrlQuery } from "querystring";
 import Router from "@koa/router";
-import * as path from "path";
-import * as fs from "fs";
 import axios from "axios";
-// import axios from "axios";
+import size from "lodash.size";
+import get from "lodash.get";
 
 const router = new Router();
 
@@ -26,63 +25,64 @@ type Icontext = Context & {
   query: IQuery;
 };
 
+// jsdelivr 在大陆已被墙
+// const jsdelivr_cdn = "https://cdn.jsdelivr.net/gh/heiemooa/folder@main";
+const emooa_cdn = "https://cdn.emooa.com";
+
 // 获取列表数据
 router.get("/img", async (ctx: Icontext) => {
   try {
-    let imageDir = path.join(__dirname, "../images");
-    let imgsArray = fs.readdirSync(imageDir);
+    // 从 cdn 上获取资源
+    const output = await axios.get(`${emooa_cdn}/output.json`);
+    const images = get(output, "data.image", []);
 
     // 拿到参数ID
     let { id, type } = ctx.query;
     id = parseInt(String(id));
-    if (id && id > 0 && id <= imgsArray.length) {
+    if (id && id > 0 && id <= size(images)) {
       ctx.response.set("Cache-Control", "public, max-age=86400");
     } else {
       ctx.response.set("Cache-Control", "no-cache");
-      id = Math.ceil(Math.random() * imgsArray.length);
+      id = Math.ceil(Math.random() * size(images));
     }
 
-    const imagePath = `/images/${imgsArray[id - 1]}`;
+    const image = get(images, `[${id - 1}].path`);
+    // 不存在时返回必应今日图片
+    const url = image
+      ? `${emooa_cdn}/${image}`
+      : "https://api-tools.emooa.com/bing/image";
 
     // json 格式
     if (type === "json") {
-      console.info(`JSON: ${imagePath}`);
       ctx.response.set("Content-Type", "application/json");
       ctx.body = {
         code: 200,
         id,
-        url: ctx.origin + imagePath,
+        url,
       };
       return;
     }
 
     // 服务端读取图片后回传
     if (type === "raw") {
-      console.info(`RAW: ${imagePath}`);
+      console.info(`RAW: ${url}`);
       if (!ALLOW_RAW_OUTPUT) {
         ctx.throw(403);
         return;
       }
       ctx.response.set("Content-Type", "image/jpeg");
 
-      try {
-        // 读取远程图片文件
-        const imageResponse = await axios.get(ctx.origin + imagePath, {
-          responseType: "arraybuffer",
-        });
-        ctx.body = Buffer.from(imageResponse.data, "binary");
-      } catch (e) {
-        console.warn(`raw error: `, e);
-        console.warn(`raw local: ${path.join(__dirname, "../", imagePath)}`);
-        // 读取本地图片文件
-        ctx.body = fs.createReadStream(path.join(__dirname, "../", imagePath));
-      }
+      // 读取远程图片文件
+      const imageResponse = await axios.get(url, {
+        responseType: "arraybuffer",
+      });
+      ctx.body = Buffer.from(imageResponse.data, "binary");
       return;
     }
 
-    console.info(`返回随机图片: ${imagePath}`);
+    console.info(`返回随机图片: ${url}`);
     ctx.set("Referrer-Policy", "no-referrer");
-    ctx.redirect(imagePath);
+    ctx.redirect(url);
   } catch (error: any) {
     console.error(error);
     ctx.status = 500;
