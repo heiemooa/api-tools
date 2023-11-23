@@ -4,6 +4,8 @@ import axios from "axios";
 import SimpleGit, { SimpleGitOptions } from "simple-git";
 import fs from "fs-extra";
 import isEmpty from "lodash.isempty";
+import { spawnSync } from "child_process";
+var readline = require("readline");
 
 const start = (time = "0 20 * * *") => {
   // 定时拉取必应图片上传Github ~ 每日晚上8点
@@ -41,6 +43,10 @@ const start = (time = "0 20 * * *") => {
         binary: "git",
         maxConcurrentProcesses: 6,
         trimmed: false,
+        progress: ({ method, stage, progress }) => {
+          readline.cursorTo(process.stdout, 0);
+          process.stdout.write(`git.${method} ${stage} stage: ${progress}% `);
+        },
       };
 
       // 克隆仓库
@@ -57,6 +63,16 @@ const start = (time = "0 20 * * *") => {
       git.cwd(folder);
       const status = await git.status();
       if (!isEmpty(status.not_added)) {
+        // 建立子进程，执行 folder 脚本程序，生成新的 output.json
+        console.log(`子进程 yarn deploy, cwd: ${folder}`);
+        const p = spawnSync("yarn", ["deploy"], { cwd: folder });
+        // 获取子进程的输出和错误信息
+        // 获取子进程的退出码
+        const exitCode = p.status;
+        if (exitCode !== 0) {
+          throw `部署失败, 子进程出错：${p.stderr.toString()}`;
+        }
+
         console.info("监测到更新，开始推送远程..");
         await git.add(".");
         await git.commit(`update: bing schedule add ${status.not_added}`);
