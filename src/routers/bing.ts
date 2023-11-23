@@ -159,7 +159,7 @@ router.get("/bing/image", async (ctx: Icontext) => {
 });
 
 // 本地图片缓存目录
-const cacheDir = path.join(__dirname, "../images");
+const cacheDir = path.join(process.cwd(), "/build/images");
 if (!fs.existsSync(cacheDir)) {
   fs.mkdirSync(cacheDir);
 }

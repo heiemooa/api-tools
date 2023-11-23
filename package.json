@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "一些实用的 API Tools, 如随机图片、每日必应、本地IP等 | Some practical API Tools, such as random pictures, daily Bing, local IP, etc.",
   "scripts": {
-    "build": "rimraf -rf build/ && tsc && cp -r public/. build/ && cp -r src/images build/images",
+    "build": "rimraf -rf build/ && tsc && cp -r public/. build/",
     "dev": "tsc --watch & NODE_ENV=development nodemon build/index.js",
     "start": "NODE_ENV=production pm2 start build/index.js --instances 1 --name api-tools",
     "test": "echo \"Error: no test specified\" && exit 1",
