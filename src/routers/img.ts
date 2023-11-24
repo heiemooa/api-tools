@@ -32,12 +32,15 @@ const emooa_cdn = "https://cdn.emooa.com";
 // 获取列表数据
 router.get("/img", async (ctx: Icontext) => {
   try {
+    let { id, type, filter = "image/bing" } = ctx.query;
+
     // 从 cdn 上获取资源
     const output = await axios.get(`${emooa_cdn}/output.json`);
-    const images = get(output, "data.image", []);
+    const images = get(output, "data.image", []).filter(
+      (image: any) => image.type === filter
+    );
 
     // 拿到参数ID
-    let { id, type } = ctx.query;
     id = parseInt(String(id));
     if (id && id > 0 && id <= size(images)) {
       ctx.response.set("Cache-Control", "public, max-age=86400");

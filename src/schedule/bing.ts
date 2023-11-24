@@ -38,24 +38,45 @@ const start = (time = "0 20 * * *") => {
       console.info(`删除本地文件仓库：${folder}`);
       fs.removeSync(folder);
 
+      let _stage = "remote:";
       const options: Partial<SimpleGitOptions> = {
         baseDir: root_dir,
         binary: "git",
         maxConcurrentProcesses: 6,
         trimmed: false,
-        progress: ({ method, stage, progress }) => {
-          readline.cursorTo(process.stdout, 0);
-          process.stdout.write(`git.${method} ${stage} stage: ${progress}% `);
+        progress: ({ stage, progress, processed, total }) => {
+          switch (stage) {
+            case "remote:":
+              readline.cursorTo(process.stdout, 0);
+              process.stdout.write(
+                `${stage}  ${progress}% (${processed}/${total})`
+              );
+              break;
+            default:
+              readline.cursorTo(process.stdout, 0);
+              process.stdout.write(
+                `${stage}:  ${progress}% (${processed}/${total})`
+              );
+              break;
+          }
+
+          if (_stage !== stage) {
+            readline.cursorTo(process.stdout, 0);
+            process.stdout.write(
+              `${_stage}  100% (${total}/${total}), done \n`
+            );
+            _stage = stage;
+          }
         },
       };
 
       // 克隆仓库
-      console.info(`克隆仓库 git@github.com:heiemooa/folder.git 到 ${folder}`);
+      console.info(`Cloning into 'folder'...`);
       const git = SimpleGit(options);
       await git.clone("git@github.com:heiemooa/folder.git", { "--depth": 1 });
 
       // 同步新突破
-      console.info(`开始同步图片..`);
+      console.info(`, done \n开始同步图片..`);
       fs.ensureDirSync(folder_bing);
       fs.copySync(api_tools_images, folder_bing, { overwrite: false });
 
@@ -64,8 +85,11 @@ const start = (time = "0 20 * * *") => {
       const status = await git.status();
       if (!isEmpty(status.not_added)) {
         // 建立子进程，执行 folder 脚本程序，生成新的 output.json
-        console.log(`子进程 yarn deploy, cwd: ${folder}`);
-        const p = spawnSync("yarn", ["deploy"], { cwd: folder });
+        console.log(`子进程 yarn && yarn deploy, cwd: ${folder}`);
+        const p = spawnSync("yarn", ["add", "deploy"], {
+          cwd: folder,
+          stdio: "inherit",
+        });
         // 获取子进程的输出和错误信息
         // 获取子进程的退出码
         const exitCode = p.status;
@@ -75,7 +99,7 @@ const start = (time = "0 20 * * *") => {
 
         console.info("监测到更新，开始推送远程..");
         await git.add(".");
-        await git.commit(`update: bing schedule add ${status.not_added}`);
+        await git.commit(`定时任务自动更新： ${status.not_added}`);
         await git.push();
         fs.removeSync(folder);
         console.info("同步完成，新增：", status.not_added);
