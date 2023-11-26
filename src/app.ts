@@ -50,7 +50,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 // 添加404处理中间件
-app.use((ctx) => {
+app.use((ctx: Context) => {
   ctx.status = 404;
   ctx.type = "html";
   ctx.body = fs.readFileSync(__dirname + "/404.html", "utf-8");
