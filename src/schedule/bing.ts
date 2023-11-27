@@ -121,8 +121,8 @@ const job = async () => {
     // 同步新图片
     console.info(`, done \n开始同步图片..`, folder_bing);
 
-    fs.ensureDirSync(path.join(folder_bing));
-    fs.copySync(api_tools_images, path.join(folder_bing, time), {
+    fs.ensureDirSync(folder_bing);
+    fs.copySync(api_tools_images, folder_bing), {
       overwrite: false,
     });
 
