@@ -32,13 +32,11 @@ const emooa_cdn = "https://cdn.emooa.com";
 // 获取列表数据
 router.get("/img", async (ctx: Icontext) => {
   try {
-    let { id, type, filter = "image/bing" } = ctx.query;
+    let { id, type, filter = "bing" } = ctx.query;
 
     // 从 cdn 上获取资源
     const output = await axios.get(`${emooa_cdn}/output.json`);
-    const images = get(output, "data.image", []).filter(
-      (image: any) => image.type === filter
-    );
+    const images = get(output, `data.image.${filter}`, []);
 
     // 拿到参数ID
     id = parseInt(String(id));
@@ -49,7 +47,7 @@ router.get("/img", async (ctx: Icontext) => {
       id = Math.ceil(Math.random() * size(images));
     }
 
-    const image = get(images, `[${id - 1}].path`);
+    const image = get(images, `[${id - 1}].url.hd`);
     // 不存在时返回必应今日图片
     const url = image
       ? `${emooa_cdn}/${image}`
