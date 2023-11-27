@@ -122,7 +122,7 @@ const job = async () => {
     console.info(`, done \n开始同步图片..`, folder_bing);
 
     fs.ensureDirSync(folder_bing);
-    fs.copySync(api_tools_images, folder_bing), {
+    fs.copySync(api_tools_images, folder_bing, {
       overwrite: false,
     });
 
