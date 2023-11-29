@@ -51,16 +51,30 @@ const job = async () => {
     ]);
     // 高斯/模糊/缩略图
     await Promise.all([
-      processImageGrey(`${api_tools_images}/hd.jpg`, { quality: 90 }),
-      processImageResize(`${api_tools_images}/hd.jpg`, {
-        width: 480,
-        height: 270,
-        quality: 90,
-      }),
-      processImageGauss(`${api_tools_images}/hd.jpg`, {
-        pixels: 20,
-        quality: 90,
-      }),
+      processImageGrey(
+        `${api_tools_images}/hd.jpg`,
+        { quality: 90 },
+        { write: `${api_tools_images}/greyscale.jpg` }
+      ),
+      processImageResize(
+        `${api_tools_images}/hd.jpg`,
+        {
+          width: 480,
+          height: 270,
+          quality: 90,
+        },
+        {
+          write: `${api_tools_images}/thumbnail.jpg`,
+        }
+      ),
+      processImageGauss(
+        `${api_tools_images}/hd.jpg`,
+        {
+          pixels: 20,
+          quality: 90,
+        },
+        { write: `${api_tools_images}/gaussian.jpg` }
+      ),
     ]);
 
     const json = {

@@ -4,17 +4,37 @@
  * 3、本地运行没问题，有人知道是为什么吗
  */
 
-// import * as path from "path";
-// import * as fs from "fs";
 import Router from "@koa/router";
 import ip from "./ip";
 import status from "./status";
 import bing from "./bing";
+import aimg from "./aimg";
 import img from "./img";
+import { Context } from "koa";
+
+type IContext = Context & {
+  query: {
+    [key: string]: any;
+  };
+};
 
 const router = new Router();
 
+// 避免后面多个接口的 query 数据解析麻烦，统一处理
+router.use(async (ctx: IContext, next: () => any) => {
+  const query: any = ctx.query;
+  for (let key in query) {
+    if (query[key] === "true") {
+      ctx.query[key] = true;
+    }
+    if (query[key] === "false") {
+      ctx.query[key] = false;
+    }
+  }
+  await next();
+});
 router.use(bing.routes());
+router.use(aimg.routes());
 router.use(img.routes());
 router.use(ip.routes());
 router.use(status.routes());
