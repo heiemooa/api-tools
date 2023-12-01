@@ -31,6 +31,7 @@ app.use(
 );
 
 app.use(async (ctx: Context, next: () => any) => {
+  // console.log("ctx.headers", ctx.headers);
   if (domain === "*") {
     await next();
   } else {
@@ -40,7 +41,7 @@ app.use(async (ctx: Context, next: () => any) => {
       ctx.status = 403;
       ctx.body = {
         code: 403,
-        message: "请通过正确的域名访问",
+        message: "访问受限",
       };
     }
   }

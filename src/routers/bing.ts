@@ -9,7 +9,6 @@
  * @param {number} uhdheight - 如果启用了超高分辨率图片，可以使用这个参数来指定图片的高度
  */
 
-import { IBingData, IImage, IImageBody } from "../interface";
 import { Context } from "koa";
 import { ParsedUrlQuery } from "querystring";
 import * as path from "path";
@@ -17,32 +16,68 @@ import * as fs from "fs";
 import axios from "axios";
 import isEmpty from "lodash.isempty";
 import Router from "@koa/router";
-import { get, set } from "../utils/cache";
+import * as cache from "../utils/cache";
 
 const router = new Router();
 
 // 调用时间
 let updateTime: string = new Date().toISOString();
 
-type IQuery = {
-  days: number;
-  size: number;
-  width: number;
-  height: number;
+export interface IImage {
+  startdate: string;
+  fullstartdate: string;
+  enddate: string;
+  url: string;
+  urlbase: string;
+  copyright: string;
+  copyrightlink: string;
+  title: string;
+  quiz: string;
+  wp: true;
+  hsh: string;
+  drk: number;
+  top: number;
+  bot: number;
+  hs: any[];
+}
+export interface IBingData {
+  images: IImage[];
+  tooltips: {
+    loading: string;
+    previous: string;
+    next: string;
+    walle: string;
+    walls: string;
+  };
+}
+
+export interface IImageBody {
+  code: number;
+  message: string;
+  from?: "cache" | "server";
+  updateTime?: string;
+  data?: any;
+}
+
+type IBingQuery = {
+  idx: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  n: number;
+  uhd: 0 | 1;
+  uhdwidth: number;
+  uhdheight: number;
 } & ParsedUrlQuery;
 
-type Icontext = Context & {
+type IBingCcontext = Context & {
   body: IImageBody | Buffer;
-  query: IQuery;
+  query: IBingQuery;
 };
 
-// 获取列表数据
-router.get("/bing", async (ctx: Icontext) => {
+// 获取
+router.get("/bing", async (ctx: IBingCcontext) => {
   try {
     // 获取参数
-    let hd = 0;
-    const { days = 0, size = 1, width, height } = ctx.query;
-    if (days > 7 || size > 8) {
+    const { idx = 0, n = 1, uhd = 0, uhdwidth, uhdheight } = ctx.query;
+    if (idx > 7 || n > 8) {
       ctx.status = 500;
       ctx.body = {
         code: 500,
@@ -50,20 +85,29 @@ router.get("/bing", async (ctx: Icontext) => {
       };
       return;
     }
-    if (width || height) hd = 1;
 
     // 缓存键名
-    const params = { name: "bingImagesData", days, size, width, height };
+    const params = { name: "bing", idx, n, uhd, uhdwidth, uhdheight };
     const cacheKey = JSON.stringify(params);
 
     // 从缓存中获取数据
-    let data: IImage[] = await get(cacheKey);
+    let data: IImage[] = await cache.get(cacheKey);
     const from = data ? "cache" : "server";
 
     if (!data) {
       // 从服务器拉取数据
+      const params = {
+        format: "js",
+        idx,
+        n,
+        uhd,
+        uhdwidth,
+        uhdheight,
+        mkt: "zh-CN",
+      };
       const response: { data: IBingData } = await axios.get(
-        `https://cn.bing.com/HPImageArchive.aspx?format=js&idx=${days}&n=${size}&uhd=${hd}&uhdwidth=${width}&uhdheight=${height}&mkt=zh-CN`
+        "https://cn.bing.com/HPImageArchive.aspx",
+        { params }
       );
       data = getData(response.data?.images);
       updateTime = new Date().toISOString();
@@ -76,78 +120,15 @@ router.get("/bing", async (ctx: Icontext) => {
         return;
       }
       // 将数据写入缓存
-      await set(cacheKey, data);
+      await cache.set(cacheKey, data, 300);
     }
     ctx.body = {
       code: 200,
       message: "OK",
       from,
       updateTime,
-      images: data,
+      data,
     };
-  } catch (error) {
-    console.error(error);
-    ctx.status = 500;
-    ctx.body = {
-      code: 500,
-      message: "获取失败",
-    };
-  }
-});
-
-// 显示图片
-router.get("/bing/image", async (ctx: Icontext) => {
-  try {
-    // 获取参数
-    let hd = 0;
-    const { width, height } = ctx.query;
-    if (width || height) hd = 1;
-
-    // 获取当前日期，格式为 YYYY-MM-DD
-    const currentDate = new Date().toISOString().split("T")[0];
-
-    // 删除昨日过期图片
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const expiredImagePath = path.join(
-      cacheDir,
-      `${yesterday.toISOString().split("T")[0]}.jpg`
-    );
-    if (fs.existsSync(expiredImagePath)) {
-      fs.unlinkSync(expiredImagePath);
-      console.info(`成功删除过期图片: ${expiredImagePath}`);
-    }
-
-    // 检查本地是否有今天的图片
-    const localImagePath = path.join(cacheDir, `${currentDate}.jpg`);
-    if (fs.existsSync(localImagePath)) {
-      console.info(`触发本地缓存: ${localImagePath}`);
-      // 如果有本地图片，读取并返回给客户端
-      const imageData = fs.readFileSync(localImagePath);
-      ctx.response.set("Content-Type", "image/jpeg");
-      ctx.body = imageData;
-    } else {
-      const bingUrl = `https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&uhd=${hd}&uhdwidth=${width}&uhdheight=${height}&mkt=zh-CN`;
-      console.info(`拉取必应新图: ${bingUrl}`);
-      // 没有本地图片，从服务器拉取数据
-      const response = await axios.get(bingUrl);
-      const imgUrl = `https://cn.bing.com/${response.data.images[0].url}`;
-      console.info(`必应图片地址: ${imgUrl}`);
-
-      // 下载图片并将其保存到本地
-      const imageResponse = await axios.get(imgUrl, {
-        responseType: "arraybuffer",
-      });
-      const imageData = Buffer.from(imageResponse.data, "binary");
-      try {
-        //  部署 vercel 没权限写入文件
-        fs.writeFileSync(localImagePath, imageData);
-      } catch (e) {}
-
-      // 将图片数据返回给客户端
-      ctx.response.set("Content-Type", "image/jpeg");
-      ctx.body = imageData;
-    }
   } catch (error) {
     console.error(error);
     ctx.status = 500;

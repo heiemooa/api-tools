@@ -2,7 +2,6 @@
  * 反代 Uptimerobot API
  */
 
-import { IImageBody } from "../interface";
 import { Context } from "koa";
 import axios from "axios";
 import Router from "@koa/router";
@@ -12,12 +11,8 @@ const router = new Router();
 // 调用路径
 const url = "https://api.uptimerobot.com/v2/getMonitors";
 
-type Icontext = Context & {
-  body: IImageBody;
-};
-
 // GET
-router.get("/status", async (ctx: Icontext) => {
+router.get("/status", async (ctx: Context) => {
   ctx.status = 400;
   ctx.body = {
     code: 400,
@@ -26,7 +21,7 @@ router.get("/status", async (ctx: Icontext) => {
 });
 
 // POST
-router.post("/status", async (ctx: Icontext) => {
+router.post("/status", async (ctx: Context) => {
   try {
     // 在这里调用 Uptimerobot API
     const response = await axios.post(url, ctx.request.body, {
