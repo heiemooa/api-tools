@@ -15,13 +15,14 @@ import {
 } from "../utils/image";
 import dayjs from "dayjs";
 import readline from "readline";
+import logger from "../utils/logger";
 
 let retryTime = 0; // 重试次数
 let errorList: string | any[] = []; // 错误列表
 
 const job = async () => {
   try {
-    console.info("定时任务开始，同步今日必应图片～");
+    logger.info("定时任务开始，同步今日必应图片～");
     const time = dayjs().format("YYYY-MM-DD");
 
     const root_dir = path.join(process.cwd(), "../"); // 根路径
@@ -30,8 +31,8 @@ const job = async () => {
     const api_tools = path.join(process.cwd());
     const api_tools_images = path.join(api_tools, `/build/images/bing/${time}`);
 
-    console.info("当前时间: " + time);
-    console.info("保存目录: " + folder);
+    logger.info("当前时间: " + time);
+    logger.info("保存目录: " + folder);
 
     fs.ensureDirSync(api_tools_images);
 
@@ -94,7 +95,7 @@ const job = async () => {
     );
 
     // 删除本地文件仓库
-    console.info(`删除本地文件仓库：${folder}`);
+    logger.info(`删除本地文件仓库：${folder}`);
     fs.removeSync(folder);
 
     let _stage = "remote:";
@@ -128,12 +129,12 @@ const job = async () => {
     };
 
     // 克隆仓库
-    console.info(`Cloning into 'folder'...`);
+    logger.info(`Cloning into 'folder'...`);
     const git = SimpleGit(options);
     await git.clone("git@github.com:heiemooa/folder.git", { "--depth": 1 });
 
     // 同步新图片
-    console.info(`, done \n开始同步图片..`, folder_bing);
+    logger.info(`, done \n开始同步图片..`, folder_bing);
 
     fs.ensureDirSync(folder_bing);
     fs.copySync(api_tools_images, folder_bing, {
@@ -145,7 +146,7 @@ const job = async () => {
     const status = await git.status();
     if (!isEmpty(status.not_added)) {
       // 建立子进程，执行 folder 脚本程序，生成新的 output.json
-      console.log(`子进程 yarn && yarn deploy, cwd: ${folder}`);
+      logger.log(`子进程 yarn && yarn deploy, cwd: ${folder}`);
       const yarn = spawnSync("yarn", [], {
         cwd: folder,
         stdio: "inherit",
@@ -163,18 +164,18 @@ const job = async () => {
         throw `部署失败, 子进程出错：${deploy.stderr.toString()}`;
       }
 
-      console.info("监测到更新，开始推送远程..");
+      logger.info("监测到更新，开始推送远程..");
       await git.add(".");
       await git.commit(`定时任务自动更新： ${status.not_added}`);
       await git.push();
       fs.removeSync(folder);
-      console.info("同步完成，新增：", status.not_added);
+      logger.info("同步完成，新增：", status.not_added);
     } else {
       fs.removeSync(folder);
-      console.info("同步完成, 无新增");
+      logger.info("同步完成, 无新增");
     }
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     retry();
   }
 };
@@ -182,11 +183,11 @@ const job = async () => {
 const retry = () => {
   if (retryTime >= 10) {
     retryTime = 0;
-    console.error("失败 " + errorList);
+    logger.error("失败 " + errorList);
     return;
   }
   retryTime++;
-  console.error("发生了错误,正在重试中 次数: " + retryTime);
+  logger.error("发生了错误,正在重试中 次数: " + retryTime);
   errorList = [];
   setTimeout(function () {
     job();

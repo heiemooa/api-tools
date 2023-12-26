@@ -14,6 +14,7 @@ import get from "lodash.get";
 import size from "lodash.size";
 import reverse from "lodash.reverse";
 import dayjs from "dayjs";
+import logger from "../utils/logger";
 
 const router = new Router();
 
@@ -52,7 +53,7 @@ router.get("/aimg", async (ctx: IBingImageCcontext) => {
       images = reverse(get(output, `data.image.bing`, []));
       await cache.set(cacheKey, images, 300);
     } else {
-      console.info(`触发缓存 ${cacheKey}: ${`${emooa_cdn}/output.json`}`);
+      logger.info(`触发缓存 ${cacheKey}: ${`${emooa_cdn}/output.json`}`);
     }
 
     // 获取参数
@@ -83,7 +84,7 @@ router.get("/aimg", async (ctx: IBingImageCcontext) => {
 
     // 服务端读取图片后回传
     if (type === "raw") {
-      console.info(`RAW: ${url}`);
+      logger.info(`RAW: ${url}`);
       if (!ALLOW_RAW_OUTPUT) {
         ctx.throw(403);
         return;
@@ -98,11 +99,11 @@ router.get("/aimg", async (ctx: IBingImageCcontext) => {
       return;
     }
 
-    console.info(`返回随机图片: ${url}`);
+    logger.info(`返回随机图片: ${url}`);
     ctx.set("Referrer-Policy", "no-referrer");
     ctx.redirect(url);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     ctx.status = 500;
     ctx.body = {
       code: 500,

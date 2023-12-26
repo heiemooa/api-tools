@@ -17,6 +17,7 @@ import axios from "axios";
 import isEmpty from "lodash.isempty";
 import Router from "@koa/router";
 import * as cache from "../utils/cache";
+import logger from "../utils/logger";
 
 const router = new Router();
 
@@ -130,7 +131,7 @@ router.get("/bing", async (ctx: IBingCcontext) => {
       data,
     };
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     ctx.status = 500;
     ctx.body = {
       code: 500,
@@ -185,7 +186,7 @@ const separateDesc = (value: string) => {
       copyright: copyright,
     };
   } catch (error) {
-    console.error("分离描述和版权信息出错:", error);
+    logger.error("分离描述和版权信息出错:", error);
     return {
       description: "",
       copyright: "",

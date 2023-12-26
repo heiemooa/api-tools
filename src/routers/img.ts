@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { getImageMainColor, processImage } from "../utils/image";
 import Jimp from "jimp";
 import * as cache from "../utils/cache";
+import logger from "../utils/logger";
 
 const router = new Router();
 
@@ -75,7 +76,7 @@ router.get("/img", async (ctx: IContext) => {
     let data = await cache.get(cacheKey);
     if (data) {
       ctx.response.set("Cache-Control", "public, max-age=86400");
-      console.log("触发缓存", params);
+      logger.info("触发缓存", params);
       ctx.status = 200;
       if (theme || base64) {
         ctx.body = data;
@@ -131,7 +132,7 @@ router.get("/img", async (ctx: IContext) => {
     ctx.body = data;
     await cache.set(cacheKey, data);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     ctx.status = 500;
     ctx.body = {
       code: 500,

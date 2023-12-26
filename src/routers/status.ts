@@ -5,6 +5,7 @@
 import { Context } from "koa";
 import axios from "axios";
 import Router from "@koa/router";
+import logger from "../utils/logger";
 
 const router = new Router();
 
@@ -32,7 +33,7 @@ router.post("/status", async (ctx: Context) => {
     // 将 Uptimerobot API 的响应返回给客户端
     ctx.body = response.data;
   } catch (error) {
-    console.error("Uptimerobot API 请求失败：", error);
+    logger.error("Uptimerobot API 请求失败：", error);
     ctx.status = 500;
     ctx.body = {
       code: 500,

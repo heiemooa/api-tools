@@ -5,6 +5,7 @@
 import Router from "@koa/router";
 import axios from "axios";
 import { Context } from "koa";
+import logger from "../utils/logger";
 
 const router = new Router();
 
@@ -18,7 +19,7 @@ router.get("/ip", async (ctx: Context) => {
     ctx.response.set("Content-Type", "text/html; charset=UTF-8");
     ctx.body = response.data;
   } catch (error) {
-    console.error("IP 请求失败：", error);
+    logger.error("IP 请求失败：", error);
     ctx.status = 500;
     ctx.body = error.response.data;
   }

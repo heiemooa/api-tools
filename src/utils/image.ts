@@ -1,5 +1,6 @@
 const Jimp = require("jimp");
 const Vibrant = require("node-vibrant");
+import logger from "../utils/logger";
 
 // ------ 逻辑函数 start ------
 // 16进制转换
@@ -25,12 +26,12 @@ export const processImageGrey = async function (
   { quality }: { quality: number },
   config?: { write: string }
 ) {
-  console.info("图片处理中: 灰度");
+  logger.info("图片处理中: 灰度");
   const img = (await Jimp.read(url)).quality(quality).greyscale();
   if (config?.write) {
     img.write(config?.write);
   }
-  console.info("图片处理成功: 灰度");
+  logger.info("图片处理成功: 灰度");
   return img;
 };
 
@@ -40,13 +41,13 @@ export const processImageGauss = async (
   { pixels, quality }: { pixels: number; quality: number },
   config?: { write: string }
 ) => {
-  console.info("图片处理中: 高斯模糊");
+  logger.info("图片处理中: 高斯模糊");
   const img = (await Jimp.read(url)).quality(quality).gaussian(pixels);
 
   if (config?.write) {
     img.write(config?.write);
   }
-  console.info("图片处理成功: 高斯模糊");
+  logger.info("图片处理成功: 高斯模糊");
   return img;
 };
 
@@ -60,12 +61,12 @@ export const processImageResize = async (
   }: { width: number; height: number; quality: number },
   config?: { write: string }
 ) => {
-  console.info("图片处理中: 缩放");
+  logger.info("图片处理中: 缩放");
   const img = (await Jimp.read(url)).resize(width, height).quality(quality);
   if (config?.write) {
     img.write(config?.write);
   }
-  console.info(`图片处理成功: 缩放 width:${width} height:${height}`);
+  logger.info(`图片处理成功: 缩放 width:${width} height:${height}`);
   return img;
 };
 
@@ -74,10 +75,10 @@ export const getImageBase64 = async (
   url: string,
   { width, height, quality }: { width: number; height: number; quality: number }
 ) => {
-  console.info("图片处理中: base64");
+  logger.info("图片处理中: base64");
   const img = (await Jimp.read(url)).resize(width, height).quality(quality);
   const base64Image = await img.getBase64Async(Jimp.AUTO);
-  console.info("图片处理成功: base64");
+  logger.info("图片处理成功: base64");
   return base64Image;
 };
 
@@ -88,7 +89,7 @@ export const getImageMainColor = async function (url: string) {
   Object.keys(palette).map((item) => {
     paletteObj[item] = rgbToHex(palette[item].rgb);
   });
-  console.info("图片处理成功: 获取主要颜色");
+  logger.info("图片处理成功: 获取主要颜色");
   return paletteObj;
 };
 
@@ -113,27 +114,27 @@ export const processImage = async function (
 ) {
   let img = await Jimp.read(url);
   if (width > 0 || height > 0) {
-    console.info(`图片处理中: 缩放 ${width} x ${height}`);
+    logger.info(`图片处理中: 缩放 ${width} x ${height}`);
     img = img.resize(width || Jimp.AUTO, height || Jimp.AUTO);
   }
   if (quality > 0 && quality < 100) {
     img = img.quality(quality);
   }
   if (greyscale) {
-    console.info(`图片处理中: 灰度`);
+    logger.info(`图片处理中: 灰度`);
     img = img.greyscale();
   }
   if (gaussian > 0 && gaussian < 20) {
-    console.info(`图片处理中: 高斯模糊 ${gaussian}`);
+    logger.info(`图片处理中: 高斯模糊 ${gaussian}`);
     img = img.gaussian(gaussian);
   }
   if (config?.write) {
     img.write(config?.write);
   }
   if (base64) {
-    console.info(`图片处理中: base64`);
+    logger.info(`图片处理中: base64`);
     img = img.getBase64Async(Jimp.AUTO);
   }
-  console.info("图片处理成功");
+  logger.info("图片处理成功");
   return img;
 };
