@@ -50,10 +50,10 @@
   dependencies:
     "@edge-runtime/primitives" "4.0.5"
 
-"@emooa/logger@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@emooa/logger/-/logger-0.0.3.tgz#4f9029b1a3a4fc2416af866cd3561c3227ba4551"
-  integrity sha512-dcx9oz2c4IsgD3crqFgkYeZCxdQDTqpuqkO4uHPSnYoaaIkg1BT0wJc9nWY1KkWL7ybIb76HVPpOZ2xHXWiDcA==
+"@emooa/logger@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@emooa/logger/-/logger-0.0.7.tgz#d37cd11eba2f677245bdf737a96d1f675665e33d"
+  integrity sha512-O029tghZKM1v9WEJF6WdqhxY2hE5oD5HAgrdHJhTSqC8oGT5gJddm0w2lmnGQIKTg8OLeabEYCw166qcmEvJYg==
   dependencies:
     lodash.isempty "^4.4.0"
     streamroller "^3.1.5"

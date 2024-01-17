@@ -57,7 +57,7 @@ router.get("/img", async (ctx: IContext) => {
       };
       return;
     }
-    const time = dayjs().format("YYYY-YY-DD");
+    const time = dayjs().format("YYYY-MM-DD");
     const params = {
       name: "img",
       time,
