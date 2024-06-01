@@ -122,7 +122,7 @@ yarn start
 - 服务端加载指定 ID 的图片并输出
 
   ```http
-  GET https://example.com/aimg?id=1&type=raw
+  GET https://example.com/aimg?idx=1&type=raw
   ```
 
 ### 3、每日必应
