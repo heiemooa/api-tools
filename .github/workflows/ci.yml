@@ -27,47 +27,47 @@ jobs:
         with:
           node-version: 16
 
-      - name: Set up SSH
-        run: |
-          if [[ -z "$SSH_PRIVATE_KEY" ]]; then
-            echo "SSH_PRIVATE_KEY is empty or not set."
-            # 在此处采取适当的措施
-          else
-            echo "SSH_PRIVATE_KEY is exist, begin deploy"
-            # 继续执行其他命令
+      # - name: Set up SSH
+      #   run: |
+      #     if [[ -z "$SSH_PRIVATE_KEY" ]]; then
+      #       echo "SSH_PRIVATE_KEY is empty or not set."
+      #       # 在此处采取适当的措施
+      #     else
+      #       echo "SSH_PRIVATE_KEY is exist, begin deploy"
+      #       # 继续执行其他命令
 
-            mkdir -p ~/.ssh
-            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
+      #       mkdir -p ~/.ssh
+      #       echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+      #       echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+      #       chmod 600 ~/.ssh/id_rsa
 
-            # # 查看已加密的私钥文件的内容
-            # ssh-keygen -y -f ~/.ssh/id_rsa
+      #       # # 查看已加密的私钥文件的内容
+      #       # ssh-keygen -y -f ~/.ssh/id_rsa
 
-            # # DEBUG, 如果ssh失败会输出详细信息
-            # ssh -v -i ~/.ssh/id_rsa $USER_NAME@$IP
-          fi
+      #       # # DEBUG, 如果ssh失败会输出详细信息
+      #       # ssh -v -i ~/.ssh/id_rsa $USER_NAME@$IP
+      #     fi
 
-      - name: Check pm2 process
-        if: steps.check-process.outputs.process-exists == '0'
-        run: ssh $USER_NAME@$IP "source ~/.profile && pm2 stop api-tools && pm2 delete api-tools || true"
+      # - name: Check pm2 process
+      #   if: steps.check-process.outputs.process-exists == '0'
+      #   run: ssh $USER_NAME@$IP "source ~/.profile && pm2 stop api-tools && pm2 delete api-tools || true"
 
-      - name: Update Files
-        run: |
-          echo "Removing /var/www/$USER_NAME/$PROJECT"
-          ssh $USER_NAME@$IP "rm -rf /var/www/$USER_NAME/$PROJECT || echo 'no such directory.'"
+      # - name: Update Files
+      #   run: |
+      #     echo "Removing /var/www/$USER_NAME/$PROJECT"
+      #     ssh $USER_NAME@$IP "rm -rf /var/www/$USER_NAME/$PROJECT || echo 'no such directory.'"
 
-          echo "Clone $REPO to /var/www/$USER_NAME/$PROJECT"
-          ssh $USER_NAME@$IP "cd /var/www/$USER_NAME && git clone --depth 1 $REPO"
+      #     echo "Clone $REPO to /var/www/$USER_NAME/$PROJECT"
+      #     ssh $USER_NAME@$IP "cd /var/www/$USER_NAME && git clone --depth 1 $REPO"
 
-      - name: Install dependencies
-        run: ssh $USER_NAME@$IP "source ~/.profile && node -v && cd /var/www/$USER_NAME/$PROJECT && yarn"
+      # - name: Install dependencies
+      #   run: ssh $USER_NAME@$IP "source ~/.profile && node -v && cd /var/www/$USER_NAME/$PROJECT && yarn"
 
-      - name: Build
-        run: ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && yarn build"
+      # - name: Build
+      #   run: ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && yarn build"
 
-      # 启动定时任务
-      - name: Start
-        run: |
-          ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && ALLOW_SCHEDULE=$ALLOW_SCHEDULE NODE_ENV=production pm2 start build/index.js --instances 1 --name api-tools"
-          echo "Deployment completed."
+      # # 启动定时任务
+      # - name: Start
+      #   run: |
+      #     ssh $USER_NAME@$IP "source ~/.profile && cd /var/www/$USER_NAME/$PROJECT && ALLOW_SCHEDULE=$ALLOW_SCHEDULE NODE_ENV=production pm2 start build/index.js --instances 1 --name api-tools"
+      #     echo "Deployment completed."

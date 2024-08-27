@@ -2,13 +2,14 @@ import app from "./app";
 import net from "net";
 
 process.env.PORT = process.env.PORT || "5555";
+process.env.HOST = process.env.HOST || "127.0.0.1";
 
 const port = Number(process.env.PORT);
 
 // 启动应用程序并监听端口
-const startApp = (port: number) => {
-  app.listen(port, () => {
-    console.log(`运行: http://localhost:${port}`);
+const startApp = (port: number, host?: string) => {
+  app.listen(port, host, () => {
+    console.log(`运行: http://${host}:${port}`);
   });
 };
 
@@ -35,13 +36,13 @@ const checkPort = (port: number) => {
 };
 
 // 尝试启动应用程序
-const tryStartApp = async (port: number) => {
+const tryStartApp = async (port: number, host: string) => {
   let isPortAvailable = await checkPort(port);
   while (!isPortAvailable) {
     port++;
     isPortAvailable = await checkPort(port);
   }
-  startApp(port);
+  startApp(port, host);
 };
 
-tryStartApp(port);
+tryStartApp(port, process.env.HOST);
