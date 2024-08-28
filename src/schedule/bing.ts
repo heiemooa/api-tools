@@ -25,8 +25,8 @@ const job = async () => {
     logger.info("定时任务开始，同步今日必应图片～");
     const time = dayjs().format("YYYY-MM-DD");
 
-    const root_dir = path.join(process.cwd(), "../"); // 根路径
-    const folder = path.join(root_dir, "folder"); // 资源文件夹路径
+    const gits_dir = path.join(process.cwd(), "/build/gits"); // 保持到指定路径
+    const folder = path.join(gits_dir, "folder"); // 资源文件夹路径
     const folder_bing = path.join(folder, "/image/bing", time); // 资源文件夹下的bing目录
     const api_tools = path.join(process.cwd());
     const api_tools_images = path.join(api_tools, `/build/images/bing/${time}`);
@@ -34,6 +34,7 @@ const job = async () => {
     logger.info("当前时间: " + time);
     logger.info("保存目录: " + folder);
 
+    fs.ensureDirSync(gits_dir);
     fs.ensureDirSync(api_tools_images);
 
     // 获取bing官方数据
@@ -100,7 +101,7 @@ const job = async () => {
 
     let _stage = "remote:";
     const options: Partial<SimpleGitOptions> = {
-      baseDir: root_dir,
+      baseDir: gits_dir,
       binary: "git",
       maxConcurrentProcesses: 6,
       trimmed: false,

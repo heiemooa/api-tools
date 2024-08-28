@@ -7,7 +7,10 @@ import bodyParser from "koa-bodyparser";
 import * as fs from "fs";
 import logger from "koa-logger";
 import dotenv from "dotenv";
-import "./schedule";
+import { runWorker } from "./utils/worker";
+import * as path from "path";
+
+runWorker(path.join(__dirname, "/schedule")); // 定时任务在新线程进行，防止主线程被阻塞
 
 dotenv.config();
 
