@@ -12,23 +12,52 @@ jobs:
     env: # 在这里定义环境变量
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      USER_NAME: ${{ secrets.USER_NAME }}
+      IP: ${{ secrets.IP }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          if [[ -z "$SSH_PRIVATE_KEY" ]]; then
+            echo "SSH_PRIVATE_KEY is empty or not set."
+            # 在此处采取适当的措施
+          else
+            echo "SSH_PRIVATE_KEY is exist, begin deploy"
+            # 继续执行其他命令
+
+            mkdir -p ~/.ssh
+            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+
+            # # 查看已加密的私钥文件的内容
+            # ssh-keygen -y -f ~/.ssh/id_rsa
+
+            # # DEBUG, 如果ssh失败会输出详细信息
+            # ssh -v -i ~/.ssh/id_rsa $USER_NAME@$IP
+          fi
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: amd64,arm64
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           platforms: linux/amd64,linux/arm64
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -37,6 +66,7 @@ jobs:
           tags: |
             type=raw,value=latest
             type=ref,event=tag
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
