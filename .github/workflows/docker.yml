@@ -21,27 +21,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up SSH
-        run: |
-          if [[ -z "$SSH_PRIVATE_KEY" ]]; then
-            echo "SSH_PRIVATE_KEY is empty or not set."
-            # 在此处采取适当的措施
-          else
-            echo "SSH_PRIVATE_KEY is exist, begin deploy"
-            # 继续执行其他命令
-
-            mkdir -p ~/.ssh
-            echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-
-            # # 查看已加密的私钥文件的内容
-            # ssh-keygen -y -f ~/.ssh/id_rsa
-
-            # # DEBUG, 如果ssh失败会输出详细信息
-            # ssh -v -i ~/.ssh/id_rsa $USER_NAME@$IP
-          fi
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -77,3 +56,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            SSH_PRIVATE_KEY=${{ secrets.SSH_PRIVATE_KEY }}
+            SSH_KNOWN_HOSTS=${{ secrets.SSH_KNOWN_HOSTS }}

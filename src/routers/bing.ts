@@ -18,6 +18,7 @@ import isEmpty from "lodash.isempty";
 import Router from "@koa/router";
 import * as cache from "../utils/cache";
 import logger from "../utils/logger";
+import bingFunc from "../schedule/bing";
 
 const router = new Router();
 
@@ -138,6 +139,15 @@ router.get("/bing", async (ctx: IBingCcontext) => {
       message: "获取失败",
     };
   }
+});
+router.get("/bing/update", async (ctx: IBingCcontext) => {
+  logger.info("手动触发 Bing 图片更新");
+  bingFunc();
+  ctx.body = {
+    code: 200,
+    message: "OK",
+    data: "手动触发 Bing 图片更新",
+  };
 });
 
 // 本地图片缓存目录

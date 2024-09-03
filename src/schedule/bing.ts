@@ -130,7 +130,7 @@ const job = async () => {
     };
 
     // 克隆仓库
-    logger.info(`Cloning into 'folder'...`);
+    logger.info(`Cloning into:`, folder, "git@github.com:heiemooa/folder.git");
     const git = SimpleGit(options);
     await git.clone("git@github.com:heiemooa/folder.git", { "--depth": 1 });
 
