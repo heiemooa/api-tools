@@ -80,7 +80,9 @@ const job = async () => {
     ]);
 
     const json = {
-      title: get(bing, "images[0].copyright", ""),
+      title: get(bing, "images[0].title", ""),
+      copyright: get(bing, "images[0].copyright", ""),
+      time,
       base64: await getImageBase64(`${api_tools_images}/hd.jpg`, {
         width: 16,
         height: 9,
@@ -204,6 +206,6 @@ const getBing = async () => {
 };
 
 /**
- *  定时拉取必应图片上传Github ~ 每日晚上8点
+ *  定时拉取必应图片上传Github ~ 每晚0点
  **/
 export default job;
