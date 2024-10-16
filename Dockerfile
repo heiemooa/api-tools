@@ -21,7 +21,9 @@ COPY --from=builder /usr/local/bin/docker-entrypoint.sh /usr/local/bin/
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 
-RUN apk add --no-cache libstdc++ dumb-init git yarn openssh-client \
+RUN apk add --no-cache tzdata libstdc++ dumb-init git yarn openssh-client \
+  && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+  && echo "Asia/Shanghai" > /etc/timezone \
   && addgroup -g 1000 node && adduser -u 1000 -G node -s /bin/sh -D node \
   && chown -R node:node ./
 
