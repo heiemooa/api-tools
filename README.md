@@ -1,5 +1,5 @@
 <div align="center">
-<img alt="logo" height="120" src="./public/favicon.png" width="120"/>
+<img alt="logo" height="120" src="./public/favicon.png" onerror="this.onerror=null; this.src='./favicon.png';"  width="120"/>
 <h2>API Tools</h2>
 <p>基于 Typescript、Koa 实现的一些实用的 API 工具, 如随机图片、每日必应、本地IP等 | Some practical API Tools, such as random pictures, daily Bing, local IP, etc.</p>
 </div>
@@ -25,10 +25,10 @@ yarn
 // 构建
 yarn build
 
-// 本地开发
+// 本地启动
 yarn dev
 
-// 云端部署
+// 远程部署
 yarn start
 ```
 
@@ -36,7 +36,18 @@ yarn start
 
 ### 1、图片 API
 
-- 支持参数 | **参数** | **属性** | **默认值** | **定义** | | --------- | -------------- | ---------- | -------------------- | | url | string 必填 | 无 | 图片路径 | | theme | boolean 非必填 | false | 是否返回图片主题色 | | greyscale | boolean 非必填 | false | 是否返回灰度图片 | | base64 | boolean 非必填 | false | 是否返回 base64 图片 | | quality | number 非必填 | 100 | 图片质量（0-100） | | gaussian | number 非必填 | 0 | 高斯模糊（0-20） | | width | number 非必填 | 无 | 宽度（大于 0） | | height | number 非必填 | 无 | 高度（大于 0） |
+- 支持参数
+
+| **参数**  | **属性**       | **默认值** | **定义**             |
+| --------- | -------------- | ---------- | -------------------- |
+| url       | string 必填    | 无         | 图片路径             |
+| theme     | boolean 非必填 | false      | 是否返回图片主题色   |
+| greyscale | boolean 非必填 | false      | 是否返回灰度图片     |
+| base64    | boolean 非必填 | false      | 是否返回 base64 图片 |
+| quality   | number 非必填  | 100        | 图片质量（0-100）    |
+| gaussian  | number 非必填  | 0          | 高斯模糊（0-20）     |
+| width     | number 非必填  | 无         | 宽度（大于 0）       |
+| height    | number 非必填  | 无         | 高度（大于 0）       |
 
 - 主题色
 
@@ -73,7 +84,12 @@ yarn start
 
 ### 2、随机图片
 
-- 支持参数 | **参数** | **属性** | **默认值** | **定义** | | -------- | -------------- | ---------- | ------------------------------------------------------------------------------------------ | | idx | number 非必填 | 0 | 跳转到指定 idx 的图片，从 0 开始。0 表示当天的图片，1 表示昨天的图片，依此类推。最大值不限 | | type | boolean 非必填 | 无 | 图片类型，json（返回 json 数据）或 raw（服务端渲染返回） |
+- 支持参数
+
+| **参数** | **属性** | **默认值** | **定义** |
+| --- | --- | --- | --- |
+| idx | number 非必填 | 0 | 跳转到指定 idx 的图片，从 0 开始。0 表示当天的图片，1 表示昨天的图片，依此类推。最大值不限 |
+| type | boolean 非必填 | 无 | 图片类型，json（返回 json 数据）或 raw（服务端渲染返回） |
 
 - 随机跳转一张图片
 
@@ -111,7 +127,15 @@ yarn start
 
 ### 3、每日必应
 
-- 支持参数 | **参数** | **默认** | **必填** | **说明** | |--------|--------|--------|----------------------| | uhdwidth | 无 | 否 | 图宽度片 | | uhdheight | 无 | 否 | 图片高度 | | uhd | 无 | 否 | 高清与否 | | n | 1 | 否 | 获取的图片数量，最大为 8 | | idx | 0 | 否 | 获取的图片在历史记录中的索引，最大为 7 |
+- 支持参数
+
+| **参数**  | **默认** | **必填** | **说明**                               |
+| --------- | -------- | -------- | -------------------------------------- |
+| uhdwidth  | 无       | 否       | 图宽度片                               |
+| uhdheight | 无       | 否       | 图片高度                               |
+| uhd       | 无       | 否       | 高清与否                               |
+| n         | 1        | 否       | 获取的图片数量，最大为 8               |
+| idx       | 0        | 否       | 获取的图片在历史记录中的索引，最大为 7 |
 
 - 详细信息
 

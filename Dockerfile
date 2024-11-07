@@ -36,7 +36,6 @@ USER node
 ENV HOST 0.0.0.0
 ENV PORT 5555
 ENV NODE_ENV production
-ENV ALLOW_SCHEDULE true
 
 EXPOSE 5555
 CMD ./entrypoint.sh && dumb-init node ./build/index.js

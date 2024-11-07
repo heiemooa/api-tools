@@ -18,21 +18,21 @@
         --text-color-gray: #888;
         --text-color-hover: #fff;
         --icon-color: #444;
+        --code-bg: #eee;
       }
       html.dark-mode {
         --text-color: #fff;
         --text-color-gray: #888;
         --text-color-hover: #3c3c3c;
         --icon-color: #cbcbcb;
+        --code-bg: #333;
       }
       * {
         margin: 0;
         padding: 0;
-        -webkit-user-select: none;
-        user-select: none;
       }
       html {
-        height: 100%;
+        min-height: 100%;
       }
       body {
         background-color: var(--text-color-hover);
@@ -49,11 +49,11 @@
         background-color: #2a2a2a;
       }
       main {
+        height: calc(100vh - 120px);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
       }
       a {
         text-decoration: none;
@@ -119,13 +119,67 @@
       .icp {
         font-size: 14px;
       }
+      #md {
+        padding: 4rem;
+      }
+
+      pre {
+        background: var(--code-bg);
+        padding: 10px 26px;
+        border-radius: 6px;
+        display: block;
+        margin-block: 10px;
+      }
+      code {
+        background: var(--code-bg);
+        border-radius: 6px;
+      }
+      code h1,
+      h2,
+      h3,
+      h4 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+      }
+      code h1,
+      h2 {
+        margin-inline: -2rem;
+      }
+      #md div:first-child {
+        margin-bottom: 40px;
+      }
+
+      #md table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow: auto;
+        margin-block: 10px;
+      }
+      #md table tr {
+        border: 1px solid var(--text-color-gray);
+      }
+      #md table th,
+      #md table td {
+        padding: 6px 13px;
+        border: 1px solid var(--text-color-gray);
+      }
+      #md blockquote {
+        margin-bottom: 10px;
+      }
+      #md table tr {
+        border: 1px solid var(--text-color-gray);
+      }
+      #md ul li {
+        margin-bottom: 10px;
+      }
     </style>
   </head>
   <body>
     <main>
       <div class="ico"><i class="fa-solid fa-screwdriver-wrench"></i></div>
       <div class="title">API Tools</div>
-      <div class="text">服务已正常运行</div>
+      <div>服务已正常运行</div>
     </main>
     <footer>
       <div class="social">
@@ -146,6 +200,7 @@
       </div>
       <div class="icp"></div>
     </footer>
+    <div id="md"></div>
     <script>
       // 跟随系统主题
       const darkModeMediaQuery = window.matchMedia(
@@ -187,4 +242,20 @@
       };
     </script>
   </body>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    fetch(
+      "https://raw.githubusercontent.com/heiemooa/api-tools/refs/heads/main/README.md"
+    )
+      .then((response) => response.text())
+      .then((markdown) => {
+        // 使用 marked.parse() 将 Markdown 转换为 HTML
+        const htmlContent = marked.parse(
+          markdown.replace(/example.com/g, "api.emooa.com")
+        );
+        // 将生成的 HTML 插入到页面中
+        document.getElementById("md").innerHTML = htmlContent;
+      })
+      .catch((error) => console.error("Error loading markdown:", error));
+  </script>
 </html>
