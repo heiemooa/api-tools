@@ -21,19 +21,18 @@ let retryTime = 0; // 重试次数
 let errorList: string | any[] = []; // 错误列表
 
 const job = async () => {
+  logger.info("定时任务开始，同步今日必应图片～");
+  const time = dayjs().format("YYYY-MM-DD");
+  const gits_dir = path.join(process.cwd(), "/build/gits"); // 保持到指定路径
+  const folder = path.join(gits_dir, "folder"); // 资源文件夹路径
+  const folder_bing = path.join(folder, "/image/bing", time); // 资源文件夹下的bing目录
+  const api_tools = path.join(process.cwd());
+  const api_tools_images = path.join(api_tools, `/build/images/bing/${time}`);
+
+  logger.info("当前时间: " + time);
+  logger.info("保存目录: " + folder);
+
   try {
-    logger.info("定时任务开始，同步今日必应图片～");
-    const time = dayjs().format("YYYY-MM-DD");
-
-    const gits_dir = path.join(process.cwd(), "/build/gits"); // 保持到指定路径
-    const folder = path.join(gits_dir, "folder"); // 资源文件夹路径
-    const folder_bing = path.join(folder, "/image/bing", time); // 资源文件夹下的bing目录
-    const api_tools = path.join(process.cwd());
-    const api_tools_images = path.join(api_tools, `/build/images/bing/${time}`);
-
-    logger.info("当前时间: " + time);
-    logger.info("保存目录: " + folder);
-
     fs.ensureDirSync(gits_dir);
     fs.ensureDirSync(api_tools_images);
 
@@ -44,11 +43,11 @@ const job = async () => {
     await Promise.all([
       downloadFile(
         "https://cn.bing.com" + bing.images[0].url,
-        `${api_tools_images}/hd.jpg`
+        `${api_tools_images}/hd.jpg`,
       ),
       downloadFile(
         "https://cn.bing.com" + bing.images[0].urlbase + "_UHD.jpg",
-        `${api_tools_images}/uhd.jpg`
+        `${api_tools_images}/uhd.jpg`,
       ),
     ]);
     // 高斯/模糊/缩略图
@@ -56,7 +55,7 @@ const job = async () => {
       processImageGrey(
         `${api_tools_images}/hd.jpg`,
         { quality: 90 },
-        { write: `${api_tools_images}/greyscale.jpg` }
+        { write: `${api_tools_images}/greyscale.jpg` },
       ),
       processImageResize(
         `${api_tools_images}/hd.jpg`,
@@ -67,7 +66,7 @@ const job = async () => {
         },
         {
           write: `${api_tools_images}/thumbnail.jpg`,
-        }
+        },
       ),
       processImageGauss(
         `${api_tools_images}/hd.jpg`,
@@ -75,7 +74,7 @@ const job = async () => {
           pixels: 20,
           quality: 90,
         },
-        { write: `${api_tools_images}/gaussian.jpg` }
+        { write: `${api_tools_images}/gaussian.jpg` },
       ),
     ]);
 
@@ -94,7 +93,7 @@ const job = async () => {
     // 本来想用 data.json, 但是 nodemon 强大的监视功能会导致不断重启，虽然生产 pm2 不会有问题。索性不用json文件
     fs.writeFileSync(
       `${api_tools_images}/data.txt`,
-      JSON.stringify(json, null, 2)
+      JSON.stringify(json, null, 2),
     );
 
     // 删除本地文件仓库
@@ -112,13 +111,13 @@ const job = async () => {
           case "remote:":
             readline.cursorTo(process.stdout, 0);
             process.stdout.write(
-              `${stage}  ${progress}% (${processed}/${total})`
+              `${stage}  ${progress}% (${processed}/${total})`,
             );
             break;
           default:
             readline.cursorTo(process.stdout, 0);
             process.stdout.write(
-              `${stage}:  ${progress}% (${processed}/${total})`
+              `${stage}:  ${progress}% (${processed}/${total})`,
             );
             break;
         }
@@ -180,6 +179,9 @@ const job = async () => {
   } catch (e) {
     logger.error(e);
     retry();
+  } finally {
+    logger.info(`清理临时仓库：${folder}`);
+    fs.removeSync(folder);
   }
 };
 
